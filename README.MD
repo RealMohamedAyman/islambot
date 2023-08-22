@@ -31,6 +31,10 @@
 Just run <span style="background-color: gray; padding:5px; border-radius: 25px">loader.py</span> and everything should be ok!
 <hr>
 
+<p>NOTE: It's not recommended to use this bot as a large project and we suggest using it as a private project for your own discord server or something..</p>
+<hr>
+<p>If you still want to start this as a large public project, then make sure you have enough resources to join all these voice channel at once.. Also you might need to work on the voice player scripts because it's not really ready for large number of servers</p>
+
 <h1>🔗 About Developer:</h1>
 <a href="https://store.narox.xyz/">
 <span style="background-color: gray; color: white; padding:10px; border-radius: 25px">Store</span></a>
