@@ -24,6 +24,7 @@
 <ol>
     <li>Open: <span style="background-color: gray; padding:3px; border-radius: 25px">main.py</span> scroll to the bottom and replace the <span style="color: red;">TOKEN</span> with the right one.</li>
     <li>Open: <span style="background-color: gray; padding:3px; border-radius: 25px">globals.py</span> Replace <span style="color: red;">db_host, db_user, db_password, db_name</span> with the right ones in DBConnect Function.</li>
+    <li>Open: <span style="background-color: gray; padding:3px; border-radius: 25px">s137_islambot.sql</span> Copy it's content to your Database (to create tables) (it's easier to do that in phpMyAdmin DB SQL Tab)</li>
     <li>Open: <span style="background-color: gray; padding:3px; border-radius: 25px">cogs/events.py</span> Find webhooks and replace <span style="color: red;">TOKENS and IDs</span> with the right one. ( Make your own webhooks in a discord server )</li>
 </ol>
 <hr>
