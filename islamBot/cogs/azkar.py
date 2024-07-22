@@ -134,17 +134,17 @@ class Azkar(commands.Cog):
 
 
 async def azkarSabah():
-    with open('./islamBot/data/azkar_sabah.json', 'r', encoding='utf-8') as f:
+    with open('./data/azkar_sabah.json', 'r', encoding='utf-8') as f:
         azkar = json.load(f)
     return azkar
 
 async def azkarMassa():
-    with open('./islamBot/data/azkar_massa.json', 'r', encoding='utf-8') as f:
+    with open('./data/azkar_massa.json', 'r', encoding='utf-8') as f:
         azkar = json.load(f)
     return azkar
 
 async def azkarPostPrayer():
-    with open('./islamBot/data/PostPrayer_azkar.json', 'r', encoding='utf-8') as f:
+    with open('./data/PostPrayer_azkar.json', 'r', encoding='utf-8') as f:
         azkar = json.load(f)
     return azkar
 
