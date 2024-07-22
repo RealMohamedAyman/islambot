@@ -90,7 +90,7 @@ class Mushaf(commands.Cog):
 
             for row in results:
                 guild_id, channel_id, page, timestamp, num = row
-                diff_hours = (now.timestamp() - timestamp.timestamp()) / 3600
+                diff_hours = (now.timestamp() - timestamp) / 3600
 
                 if diff_hours < 24:
                     continue
@@ -101,7 +101,7 @@ class Mushaf(commands.Cog):
                     continue
 
                 for i in range(num):
-                    current_page = page + i
+                    current_page = int(page) + i
                     if current_page > 569:
                         break
                     await self.sendDaily(channel, current_page)
@@ -110,7 +110,7 @@ class Mushaf(commands.Cog):
                     cursor.execute("DELETE FROM nkhtm WHERE guild_id=%s", (guild_id,))
                 else:
                     cursor.execute("UPDATE nkhtm SET page=%s, timestamp=%s WHERE guild_id=%s", 
-                                         (current_page, now, guild_id))
+                                         (current_page, now.timestamp(), guild_id))
 
     async def sendDaily(self, channel: discord.TextChannel, page: int):
         formatted_page = self.format_page(page)
