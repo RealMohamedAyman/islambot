@@ -1,22 +1,17 @@
 import discord
 from discord.ext import commands
-import json
 import os
+from globals import *
 from dotenv import load_dotenv
-import mysql.connector
-from globals import DBConnect
-from globals import PREFIX
 
-# All you need here is pasting token at the last line in run function
+load_dotenv()
 
 intents = discord.Intents.default()
 intents.members = True
 intents.voice_states = True
-# intents.message_content = True
-client = commands.Bot(command_prefix=PREFIX, intents=intents)
+client = commands.AutoShardedBot(command_prefix=PREFIX, intents=intents)
 client.remove_command('help')
 tree = client.tree
-
 
 @client.event
 async def setup_hook():
@@ -35,13 +30,11 @@ async def setup_hook():
     cogsStatus += "\nMade with 💖 by Mohamed Ayman\nNarox © 2022. All rights reserved."
     print(cogsStatus)
 
-
 @client.command(hidden=True)
 @commands.is_owner()
 async def load(ctx, extension):
     await client.load_extension(f'cogs.{extension}')
     await ctx.reply(f'Loaded **{extension}**!')
-
 
 @client.command(hidden=True)
 @commands.is_owner()
@@ -49,14 +42,12 @@ async def unload(ctx, extension):
     await client.unload_extension(f'cogs.{extension}')
     await ctx.reply(f'UN-Loaded **{extension}**!')
 
-
 @client.command(hidden=True)
 @commands.is_owner()
 async def reload(ctx, extension):
     await client.unload_extension(f'cogs.{extension}')
     await client.load_extension(f'cogs.{extension}')
     await ctx.reply(f'Reloaded **{extension}**!')
-
 
 @client.command(hidden=True)
 @commands.is_owner()
@@ -69,7 +60,6 @@ async def modules(ctx):
         i for i in modulesList), color=0x00FF00)
     await ctx.reply(embed=embed)
 
-
 @client.command(hidden=True)
 @commands.is_owner()
 async def sync(ctx: commands.Context):
@@ -81,7 +71,6 @@ async def sync(ctx: commands.Context):
     except Exception as e:
         await message.edit(content=f"## Failed to sync..\n**Exception:** {e}")
 
-
 @load.error
 async def load_error(ctx, error):
     if isinstance(error, discord.ext.commands.errors.ExtensionAlreadyLoaded):
@@ -89,7 +78,6 @@ async def load_error(ctx, error):
         error.add_field(
             name="ERROR", value=f"**Command Invoke Error!** This Extension is already loaded", inline=False)
         await ctx.reply(embed=error)
-
 
 @unload.error
 async def unload_error(ctx, error):
@@ -99,5 +87,4 @@ async def unload_error(ctx, error):
             name="ERROR", value=f"**Command Invoke Error!** This Extension is already unloaded", inline=False)
         await ctx.reply(embed=error)
 
-
-client.run("TOKEN")
+client.run(os.getenv("TOKEN"))
