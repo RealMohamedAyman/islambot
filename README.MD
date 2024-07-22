@@ -21,7 +21,7 @@
 <h1>- How to start for the first time:</h1>
 <p>First of all you need to know that you will always start the bot from <span style="background-color: gray; padding:5px; border-radius: 25px">loader.py</span> file.</p>
 <h3 style="color: lightgreen;">-> 🔨 Steps to do before starting for the first time:</h3>
-<p>Open: <span style="background-color: gray; padding:3px; border-radius: 25px">.env</span> and replace the data like<span style="color: red;">Webhook Token, Webhook ID, Bot Token, DB INFO</span> with the right ones.</p>
+<p>Open: <span style="background-color: gray; padding:3px; border-radius: 25px">.env</span> and replace the data like<span style="color: red;"> Webhook Token, Webhook ID, Bot Token, DB INFO</span> with the right ones.</p>
 <hr>
 <h2>🎉 Congrats! You are now ready to start your Bot..</h2>
 Just run <span style="background-color: gray; padding:5px; border-radius: 25px">loader.py</span> and everything should be ok!
