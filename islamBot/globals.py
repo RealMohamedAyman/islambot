@@ -4,15 +4,24 @@ import mysql.connector.pooling
 from mysql.connector.pooling import MySQLConnectionPool
 from mysql.connector.connection import MySQLConnection
 from mysql.connector.cursor import MySQLCursor
+from dotenv import load_dotenv
 
-PREFIX = 'i&'
+load_dotenv()
+
+
+PREFIX = 'ib!'
 
 dbconfig = {
-    "host": os.getenv("DB_HOST", "localhost"),
-    "user": os.getenv("DB_USER", "root"),
+    "host": os.getenv("DB_HOST"),
+    "user": os.getenv("DB_USER"),
     "password": os.getenv("DB_PASSWORD", ""),
-    "database": os.getenv("DB_NAME", "islambot"),
+    "database": os.getenv("DB_NAME"),
 }
+
+print(dbconfig["host"])
+print(dbconfig["user"])
+print(dbconfig["password"])
+print(dbconfig["database"])
 
 def db_connect() -> MySQLConnectionPool:
     try:
