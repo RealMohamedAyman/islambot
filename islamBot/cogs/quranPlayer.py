@@ -6,7 +6,7 @@ from typing import List, Dict
 from contextlib import asynccontextmanager
 import json
 
-with open('./data/quranStations.json', 'r', encoding='utf-8') as f:
+with open('./islamBot/data/quranStations.json', 'r', encoding='utf-8') as f:
     QURAN_STATIONS = json.load(f)
 
 async def quran_station_autocomplete(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
