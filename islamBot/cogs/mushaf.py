@@ -19,6 +19,7 @@ class Mushaf(commands.Cog):
             cursor = connection.cursor()
             yield cursor
         finally:
+            connection.commit()
             return_connection_to_pool(connection, cursor)
 
     def format_page(self, page: int) -> str:
@@ -111,6 +112,7 @@ class Mushaf(commands.Cog):
                 else:
                     cursor.execute("UPDATE nkhtm SET page=%s, timestamp=%s WHERE guild_id=%s", 
                                          (current_page, now.timestamp(), guild_id))
+                
 
     async def sendDaily(self, channel: discord.TextChannel, page: int):
         formatted_page = self.format_page(page)
