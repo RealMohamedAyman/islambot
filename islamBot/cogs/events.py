@@ -3,6 +3,9 @@ from discord.ext import commands
 from globals import *
 import os
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Events(commands.Cog):
     def __init__(self, client):
@@ -39,7 +42,7 @@ class Events(commands.Cog):
         
         embed = discord.Embed(title="🤖 Bot Status", color=discord.Colour.dark_gold())
         embed.description = "IslamBot is back online & Getting ready to sync commands!"
-        await wh.send(embed=embed)
+        wh.send(embed=embed)
         
         synced = await self.client.tree.sync()
         print(f"Synced {len(synced)} command(s).")
@@ -101,7 +104,7 @@ class Events(commands.Cog):
         
         embed = discord.Embed(title='Joined a new guild', color=discord.Colour.dark_green())
         embed.description = f"Guild Name: {guild.name}\nGuild ID: {guild.id}\nOwnerID: {guild.owner_id}"
-        await wh.send(embed=embed)
+        wh.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
@@ -111,7 +114,7 @@ class Events(commands.Cog):
         
         embed = discord.Embed(title='Guild was removed', color=discord.Colour.dark_red())
         embed.description = f"Guild Name: {guild.name}\nGuild ID: {guild.id}\nOwnerID: {guild.owner_id}"
-        await wh.send(embed=embed)
+        wh.send(embed=embed)
 
 async def setup(client):
     await client.add_cog(Events(client))
