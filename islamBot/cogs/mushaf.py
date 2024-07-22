@@ -16,10 +16,8 @@ class Mushaf(commands.Cog):
         cursor = None
         try:
             connection = cnxPool.get_connection()
-            cursor = connection.cursor()
-            yield cursor
+            yield connection
         finally:
-            connection.commit()
             return_connection_to_pool(connection, cursor)
 
     def format_page(self, page: int) -> str:
@@ -59,7 +57,8 @@ class Mushaf(commands.Cog):
                                         description="Number of pages must be between 1 and 5 per day")
             return await interaction.followup.send(embed=numErrEmbed)
 
-        async with self.get_db_cursor() as cursor:
+        async with self.get_db_cursor() as cnx:
+            cursor = cnx.cursor()
             cursor.execute("SELECT * FROM nkhtm WHERE guild_id=%s", (str(interaction.guild.id),))
             results = cursor.fetchall()
             time = str(datetime.datetime.utcnow())
@@ -67,9 +66,11 @@ class Mushaf(commands.Cog):
             if results:
                 cursor.execute("UPDATE nkhtm SET channel_id=%s, timestamp=%s, page=%s, num=%s WHERE guild_id=%s",
                                      (str(channel.id), time, 1, num, str(interaction.guild.id)))
+                cnx.commit()
             else:
                 cursor.execute("INSERT INTO nkhtm (guild_id, channel_id, page, timestamp, num) VALUES (%s, %s, %s, %s, %s)",
                                      (str(interaction.guild.id), str(channel.id), 1, time, num))
+                cnx.commit()
 
         try:
             testPermEmbed = discord.Embed(color=discord.Color.dark_gold(), 
@@ -84,7 +85,8 @@ class Mushaf(commands.Cog):
         await interaction.followup.send(f"Changed your daily mushaf channel to {channel.mention}")
 
     async def sendPage(self):
-        async with self.get_db_cursor() as cursor:
+        async with self.get_db_cursor() as cnx:
+            cursor = cnx.cursor()
             cursor.execute("SELECT * FROM nkhtm")
             results =  cursor.fetchall()
             now = datetime.datetime.now(datetime.UTC)
@@ -109,9 +111,11 @@ class Mushaf(commands.Cog):
 
                 if current_page >= 569:
                     cursor.execute("DELETE FROM nkhtm WHERE guild_id=%s", (guild_id,))
+                    cnx.commit()
                 else:
                     cursor.execute("UPDATE nkhtm SET page=%s, timestamp=%s WHERE guild_id=%s", 
                                          (current_page, now.timestamp(), guild_id))
+                    cnx.commit()
                 
 
     async def sendDaily(self, channel: discord.TextChannel, page: int):
