@@ -1,16 +1,34 @@
-import mysql.connector
+import os
+from typing import Optional
+import mysql.connector.pooling
+from mysql.connector.pooling import MySQLConnectionPool
+from mysql.connector.connection import MySQLConnection
+from mysql.connector.cursor import MySQLCursor
 
-PREFIX = '&'
+PREFIX = 'i&'
 
-# All you need here is replacing db_host,db_username, db_password, db_name with real right ones
+dbconfig = {
+    "host": os.getenv("DB_HOST", "localhost"),
+    "user": os.getenv("DB_USER", "root"),
+    "password": os.getenv("DB_PASSWORD", ""),
+    "database": os.getenv("DB_NAME", "islambot"),
+}
 
-def DBConnect():
-    db = mysql.connector.connect(
-        host='db_host',
-        user='db_username',
-        password='db_password',
-        database='db_name',
-        auth_plugin='mysql_native_password'
-    )
-    cursor = db.cursor()
-    return db, cursor
+def db_connect() -> MySQLConnectionPool:
+    try:
+        return mysql.connector.pooling.MySQLConnectionPool(
+            pool_name="islambot_pool",
+            pool_size=20,
+            **dbconfig
+        )
+    except mysql.connector.Error as err:
+        print(f"Error creating connection pool: {err}")
+        raise
+
+cnxPool = db_connect()
+
+def return_connection_to_pool(connection: Optional[MySQLConnection], cursor: Optional[MySQLCursor]) -> None:
+    if cursor:
+        cursor.close()
+    if connection:
+        connection.close()
