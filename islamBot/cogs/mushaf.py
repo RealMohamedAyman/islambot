@@ -90,7 +90,7 @@ class Mushaf(commands.Cog):
 
             for row in results:
                 guild_id, channel_id, page, timestamp, num = row
-                diff_hours = (now - timestamp).total_seconds() / 3600
+                diff_hours = (now.timestamp() - timestamp.timestamp()) / 3600
 
                 if diff_hours < 24:
                     continue
