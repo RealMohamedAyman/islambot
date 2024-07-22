@@ -86,7 +86,7 @@ class Mushaf(commands.Cog):
         async with self.get_db_cursor() as cursor:
             cursor.execute("SELECT * FROM nkhtm")
             results =  cursor.fetchall()
-            now = datetime.datetime.utcnow()
+            now = datetime.datetime.now(datetime.UTC)
 
             for row in results:
                 guild_id, channel_id, page, timestamp, num = row
@@ -95,8 +95,9 @@ class Mushaf(commands.Cog):
                 if diff_hours < 24:
                     continue
 
-                channel = self.client.get_channel(int(channel_id))
-                if not channel:
+                try:
+                    channel = await self.client.fetch_channel(int(channel_id))
+                except:
                     continue
 
                 for i in range(num):
