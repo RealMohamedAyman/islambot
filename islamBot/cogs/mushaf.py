@@ -24,7 +24,7 @@ class Mushaf(commands.Cog):
     def format_page(self, page: int) -> str:
         return f"{page:03d}"
 
-    @tasks.loop(seconds=60)
+    @tasks.loop(minutes=3)
     async def checkPages(self):
         await self.sendPage()
 
