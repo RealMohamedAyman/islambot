@@ -20,13 +20,13 @@ async def setup(client):
 
 async def get_videos(client):
     try:
-        channel = await client.fetch_channel(CHANNEL_ID)
-        msgs = [msg async for msg in channel.history()]
+        channel: discord.TextChannel = await client.fetch_channel(CHANNEL_ID)
+        msgs = [msg async for msg in channel.history(limit=300)]
         
         while msgs:
-            post = random.choice(msgs)
+            post: discord.Message = random.choice(msgs)
             for attachment in post.attachments:
-                if attachment.url.lower().endswith('.mp4'):
+                if '.mp4' in attachment.url.lower():
                     return f"** ♥ URL: {attachment.url} **"
             msgs.remove(post)
         
