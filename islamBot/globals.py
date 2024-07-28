@@ -18,11 +18,6 @@ dbconfig = {
     "database": os.getenv("DB_NAME"),
 }
 
-print(dbconfig["host"])
-print(dbconfig["user"])
-print(dbconfig["password"])
-print(dbconfig["database"])
-
 def db_connect() -> MySQLConnectionPool:
     try:
         return mysql.connector.pooling.MySQLConnectionPool(
