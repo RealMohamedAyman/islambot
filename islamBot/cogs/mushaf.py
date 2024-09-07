@@ -5,6 +5,7 @@ import datetime
 from contextlib import asynccontextmanager
 from globals import *
 
+
 class Mushaf(commands.Cog):
     def __init__(self, client):
         self.client = client
@@ -36,13 +37,14 @@ class Mushaf(commands.Cog):
 
         formatted_page = self.format_page(page)
         embed = discord.Embed(
-            color=discord.Colour.dark_gold(), 
+            color=discord.Colour.dark_gold(),
             title=f"Al-Mushaf - Page ( {formatted_page} / 569 )"
         )
         embed.set_footer(
             text=f"Requested by: {interaction.user} ( {interaction.user.id} )"
         )
-        embed.set_image(url=f"https://qurango.com/images/arabic/{formatted_page}.jpg")
+        embed.set_image(
+            url=f"https://qurango.com/images/arabic/{formatted_page}.jpg")
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="nkhtm", description="Set a channel to send one page from Quran every day")
@@ -53,49 +55,68 @@ class Mushaf(commands.Cog):
         await interaction.response.defer()
 
         if num < 1 or num > 5:
-            numErrEmbed = discord.Embed(color=discord.Color.dark_red(), 
+            numErrEmbed = discord.Embed(color=discord.Color.dark_red(),
                                         description="Number of pages must be between 1 and 5 per day")
             return await interaction.followup.send(embed=numErrEmbed)
 
         async with self.get_db_cursor() as cnx:
             cursor = cnx.cursor()
-            cursor.execute("SELECT * FROM nkhtm WHERE guild_id=%s", (str(interaction.guild.id),))
+            cursor.execute("SELECT * FROM nkhtm WHERE guild_id=%s",
+                           (str(interaction.guild.id),))
             results = cursor.fetchall()
             time = str(datetime.datetime.utcnow())
-            
+
             if results:
                 cursor.execute("UPDATE nkhtm SET channel_id=%s, timestamp=%s, page=%s, num=%s WHERE guild_id=%s",
-                                     (str(channel.id), time, 1, num, str(interaction.guild.id)))
+                               (str(channel.id), time, 0, num, str(interaction.guild.id)))
                 cnx.commit()
             else:
                 cursor.execute("INSERT INTO nkhtm (guild_id, channel_id, page, timestamp, num) VALUES (%s, %s, %s, %s, %s)",
-                                     (str(interaction.guild.id), str(channel.id), 1, time, num))
+                               (str(interaction.guild.id), str(channel.id), 0, time, num))
                 cnx.commit()
 
         try:
-            testPermEmbed = discord.Embed(color=discord.Color.dark_gold(), 
-                                          title="This channel has been set for daily Quran pages", 
+            testPermEmbed = discord.Embed(color=discord.Color.dark_gold(),
+                                          title="This channel has been set for daily Quran pages",
                                           description="IslamBot will start sending pages here starting from tomorrow!")
             await channel.send(embed=testPermEmbed)
         except discord.Forbidden:
-            permErrEmbed = discord.Embed(color=discord.Color.dark_red(), 
+            permErrEmbed = discord.Embed(color=discord.Color.dark_red(),
                                          description="I don't have enough permissions in that channel. I need permission to send messages, media and embeds")
             return await interaction.followup.send(f"I don't have permission to send messages in {channel.mention}", embed=permErrEmbed)
-        
+
         await interaction.followup.send(f"Changed your daily mushaf channel to {channel.mention}")
 
     async def sendPage(self):
         async with self.get_db_cursor() as cnx:
             cursor = cnx.cursor()
             cursor.execute("SELECT * FROM nkhtm")
-            results =  cursor.fetchall()
+            results = cursor.fetchall()
             now = datetime.datetime.now(datetime.UTC)
 
             for row in results:
                 guild_id, channel_id, page, timestamp, num = row
-                diff_hours = (now.timestamp() - timestamp) / 3600
 
-                if diff_hours < 24:
+                # Convert timestamp to UTC datetime object
+                if isinstance(timestamp, str):
+                    last_send_time = datetime.datetime.fromisoformat(
+                        timestamp).replace(tzinfo=datetime.UTC)
+                elif isinstance(timestamp, (int, float)):
+                    last_send_time = datetime.datetime.fromtimestamp(
+                        timestamp, tz=datetime.UTC)
+                elif isinstance(timestamp, datetime.datetime):
+                    last_send_time = timestamp.replace(
+                        tzinfo=datetime.UTC) if timestamp.tzinfo is None else timestamp.astimezone(datetime.UTC)
+                else:
+                    # Log unexpected timestamp type and skip this iteration
+                    print(
+                        f"Unexpected timestamp type for guild {guild_id}: {type(timestamp)}")
+                    continue
+
+                # Calculate time difference
+                time_difference = now - last_send_time
+
+                if time_difference.total_seconds() < 24 * 3600:  # Less than 24 hours
                     continue
 
                 try:
@@ -104,27 +125,29 @@ class Mushaf(commands.Cog):
                     continue
 
                 for i in range(num):
-                    current_page = int(page) + i
+                    current_page = int(page) + 1 + i
                     if current_page > 569:
                         break
                     await self.sendDaily(channel, current_page)
 
                 if current_page >= 569:
-                    cursor.execute("DELETE FROM nkhtm WHERE guild_id=%s", (guild_id,))
+                    cursor.execute(
+                        "DELETE FROM nkhtm WHERE guild_id=%s", (guild_id,))
                     cnx.commit()
                 else:
-                    cursor.execute("UPDATE nkhtm SET page=%s, timestamp=%s WHERE guild_id=%s", 
-                                         (current_page, now.timestamp(), guild_id))
+                    # Update with the current time
+                    cursor.execute("UPDATE nkhtm SET page=%s, timestamp=%s WHERE guild_id=%s",
+                                   (current_page, now, guild_id))
                     cnx.commit()
-                
 
     async def sendDaily(self, channel: discord.TextChannel, page: int):
         formatted_page = self.format_page(page)
         embed = discord.Embed(
-            color=discord.Colour.dark_gold(), 
+            color=discord.Colour.dark_gold(),
             title=f"Al-Mushaf - Page ( {formatted_page} / 569 )"
         )
-        embed.set_image(url=f"https://qurango.com/images/arabic/{formatted_page}.jpg")
+        embed.set_image(
+            url=f"https://qurango.com/images/arabic/{formatted_page}.jpg")
 
         if page == 569:
             embed.description = f"{self.doaa1}\n\n{self.doaa2}\n\n{self.doaa3}"
@@ -145,9 +168,6 @@ class Mushaf(commands.Cog):
     «اللهم إني أسألك خير المسألة وخير الدعاء وخير النجاح وخير العلم وخير العمل وخير الثواب وخير الحياة وخير الممات وثبتني وثقل موازيني وحقق إيماني وارفع درجتي وتقبل صلاتي واغفر خطيئاتي وأسألك العلا من الجنة.. اللهم أحسن عاقبتنا في الأمور كلها، وأجرنا من خزي الدنيا وعذاب الآخرة».
     """
 
+
 async def setup(client):
     await client.add_cog(Mushaf(client))
-
-
-
-
