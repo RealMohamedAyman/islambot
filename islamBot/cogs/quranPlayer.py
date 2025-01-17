@@ -66,6 +66,41 @@ class QuranPlayer(commands.Cog):
         embed = discord.Embed(color=discord.Colour.dark_gold(), title="Quran Player")
         embed.description = f"Now playing **{selected_station['name_en']}** in {channel.mention}"
         await interaction.response.send_message(embed=embed)
+    
+    @app_commands.command(name="quran_here", description="Play Quran in your current voice channel")
+    @app_commands.describe(station="The Quran station to play")
+    @app_commands.autocomplete(station=quran_station_autocomplete)
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.guild_only()
+    async def _quran_here(self, interaction: discord.Interaction, station: str):
+        # Get the voice channel of the user
+        if not interaction.user.voice or not interaction.user.voice.channel:
+            await interaction.response.send_message("You need to be in a voice channel to use this command.", ephemeral=True)
+            return
+
+        channel = interaction.user.voice.channel
+
+        selected_station = next((s for s in QURAN_STATIONS if s['name_en'] == station), None)
+
+        if not selected_station:
+            await interaction.response.send_message("Invalid station selected.", ephemeral=True)
+            return
+
+        async with self.get_db_cursor() as cursor:
+            cursor.execute("SELECT * FROM voice WHERE guild_id=%s", (str(interaction.guild.id),))
+            results = cursor.fetchall()
+            if results:
+                cursor.execute("UPDATE voice SET channel_id=%s, url=%s WHERE guild_id=%s",
+                               (str(channel.id), selected_station['radio_url'], str(interaction.guild.id)))
+            else:
+                cursor.execute("INSERT INTO voice (guild_id, channel_id, url) VALUES (%s, %s, %s)",
+                               (str(interaction.guild.id), str(channel.id), selected_station['radio_url']))
+
+        await self.connect_and_play(interaction.guild, channel, selected_station['radio_url'])
+
+        embed = discord.Embed(color=discord.Colour.dark_gold(), title="Quran Player")
+        embed.description = f"Now playing **{selected_station['name_en']}** in {channel.mention}"
+        await interaction.response.send_message(embed=embed)
 
     async def start_playing(self, voice_client: discord.VoiceClient, url: str, guild_id: str):
         ffmpeg_options = {
